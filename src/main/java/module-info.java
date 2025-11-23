@@ -5,7 +5,10 @@ module local.dev.fxchatclient {
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires org.kordamp.bootstrapfx.core;
+    requires javafx.graphics;
 
     opens local.dev.fxchatclient to javafx.fxml;
     exports local.dev.fxchatclient;
+    exports local.dev.fxchatclient.controller;
+    opens local.dev.fxchatclient.controller to javafx.fxml;
 }
