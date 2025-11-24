@@ -58,7 +58,7 @@ public class LoginController {
             }
 
             ChatController chatController = loader.getController();
-            chatController.setSessionData(token, addressField.getText(), portField.getText());
+            chatController.setSessionData(token, addressField.getText(), portField.getText(), usernameField.getText());
 
             Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.setScene(scene);
