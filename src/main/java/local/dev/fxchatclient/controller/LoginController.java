@@ -1,5 +1,6 @@
 package local.dev.fxchatclient.controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.fxml.FXML;
@@ -10,7 +11,10 @@ public class LoginController {
     @FXML private TextField addressField;
     @FXML private TextField portField;
     @FXML private Button pingButton;
-    @FXML private Button connectButton;
+    @FXML private Button registerButton;
+    @FXML private Button loginButton;
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
 
     @FXML
     private void handlePingAction() {
@@ -21,8 +25,12 @@ public class LoginController {
     }
 
     @FXML
-    private void handleConnectAction() {
+    private void handleRegisterAction() {
         // TODO
-        System.out.println("Connect-Button geklickt.");
+        System.out.println("Register-Button geklickt.");
+    }
+
+    public void handleLoginAction(ActionEvent actionEvent) {
+        System.out.println("Login-Button geklickt.");
     }
 }

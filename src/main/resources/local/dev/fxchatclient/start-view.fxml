@@ -12,14 +12,22 @@
             prefHeight="400.0" prefWidth="600.0">
 
 
-    <VBox >
+    <VBox AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" >
         <Label text="Server-Adresse:" />
         <TextField fx:id="addressField" text="javaprojects.ch" />
         <Label text="Port:" />
         <TextField fx:id="portField" text="50001" />
         <HBox>
             <Button fx:id="pingButton" text="Ping" onAction="#handlePingAction" />
-            <Button fx:id="connectButton" text="Connect" onAction="#handleConnectAction" />
+        </HBox>
+        <Separator />
+        <Label text="Benutzername:" />
+        <TextField fx:id="usernameField" text="Bernese" />
+        <Label text="Passwort:" />
+        <PasswordField fx:id="passwordField" text="abc123" />
+        <HBox>
+            <Button fx:id="loginButton" text="Login" onAction="#handleLoginAction" />
+            <Button fx:id="registerButton" text="Register" onAction="#handleRegisterAction" />
         </HBox>
     </VBox>
 </AnchorPane>
