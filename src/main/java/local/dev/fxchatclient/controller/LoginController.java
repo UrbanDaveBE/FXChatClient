@@ -34,5 +34,7 @@ public class LoginController {
 
     public void handleLoginAction(ActionEvent actionEvent) {
         System.out.println("Login-Button geklickt.");
+        LoginService loginService = new LoginService();
+        loginService.executeLogin(addressField.getText(),portField.getText(),usernameField.getText(),passwordField.getText());
     }
 }

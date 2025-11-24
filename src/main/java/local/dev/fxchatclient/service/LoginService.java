@@ -32,11 +32,10 @@ public class LoginService {
 
 
     // Send a POST request to /ping
-    private static void sendPostRequest(URI uri, HttpClient client, JSONObject data) {
+    private static JSONObject sendPostRequest(URI uri, HttpClient client, JSONObject data) {
         String result;
+        JSONObject jsonResponse = new JSONObject();
         try {
-
-
 
             HttpRequest request = HttpRequest.newBuilder().uri(uri)
                     .header("Content-Type", "application/json")
@@ -47,8 +46,8 @@ public class LoginService {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
             result = "POST Request: Status code = " + response.statusCode();
             String body = response.body();
-            JSONObject jsonIn = readJSON(body);
-            if (jsonIn == null) result += " (body is invalid JSON)";
+            jsonResponse = readJSON(body);
+            if (jsonResponse == null) result += " (body is invalid JSON)";
             result += ", body: " + body;
         } catch (IOException e) {
             result = "POST Request: IO Exception" + e;
@@ -58,10 +57,12 @@ public class LoginService {
             result = "POST Request: Unexpected error!" + e;
         }
         System.out.println(result);
+        return jsonResponse;
     }
     // Send a GET request to /ping
-    private static void sendGetRequest(URI uri, HttpClient client) {
+    private static JSONObject sendGetRequest(URI uri, HttpClient client) {
         String result;
+        JSONObject jsonResponse = new JSONObject();
         try {
             HttpRequest request = HttpRequest.newBuilder().uri(uri)
                     .timeout(Duration.of(3, ChronoUnit.SECONDS))
@@ -70,8 +71,8 @@ public class LoginService {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
             result = "GET Request: Status code = " + response.statusCode();
             String body = response.body();
-            JSONObject jsonIn = readJSON(body);
-            if (jsonIn == null) result += " (body is invalid JSON)";
+            jsonResponse = readJSON(body);
+            if (jsonResponse == null) result += " (body is invalid JSON)";
             result += ", body: " + body;
         } catch (IOException e) {
             result = "GET Request: IO Exception: " + e;
@@ -81,6 +82,7 @@ public class LoginService {
             result = "GET Request: Unexpected error!";
         }
         System.out.println(result);
+        return jsonResponse;
     }
 
     private static JSONObject readJSON(String in) {
@@ -98,6 +100,25 @@ public class LoginService {
             // Read command-line parameters, if they exist
 
             URI uri = new URI("http://" + hostAddress + ":" + port + "/user/register"); // If needed, change http to https
+            HttpClient client = HttpClient.newBuilder()
+                    // .sslContext(SSLContext.getDefault()) // Uncomment if you want to use https
+                    .build();
+
+            JSONObject jsonBody = new JSONObject()
+                    .put("username", username)
+                    .put("password", password);
+            sendPostRequest(uri, client, jsonBody);
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    public void executeLogin(String hostAddress, String port, String username, String password) {
+        try {
+            // Read command-line parameters, if they exist
+
+            URI uri = new URI("http://" + hostAddress + ":" + port + "/user/login"); // If needed, change http to https
             HttpClient client = HttpClient.newBuilder()
                     // .sslContext(SSLContext.getDefault()) // Uncomment if you want to use https
                     .build();
