@@ -28,6 +28,8 @@ public class LoginController {
     private void handleRegisterAction() {
         // TODO
         System.out.println("Register-Button geklickt.");
+        LoginService loginService = new LoginService();
+        loginService.executeRegister(addressField.getText(),portField.getText(),usernameField.getText(),passwordField.getText());
     }
 
     public void handleLoginAction(ActionEvent actionEvent) {

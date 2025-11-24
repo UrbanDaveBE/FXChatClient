@@ -15,11 +15,6 @@ import java.time.temporal.ChronoUnit;
 public class LoginService {
 
 
-
-    public LoginService() {
-
-    }
-
     public void executePing(String hostAddress, String port) {
         try {
             // Read command-line parameters, if they exist
@@ -28,7 +23,6 @@ public class LoginService {
             HttpClient client = HttpClient.newBuilder()
                     // .sslContext(SSLContext.getDefault()) // Uncomment if you want to use https
                     .build();
-
             sendGetRequest(uri, client);
 
         } catch (Exception e) {
@@ -36,6 +30,35 @@ public class LoginService {
         }
     }
 
+
+    // Send a POST request to /ping
+    private static void sendPostRequest(URI uri, HttpClient client, JSONObject data) {
+        String result;
+        try {
+
+
+
+            HttpRequest request = HttpRequest.newBuilder().uri(uri)
+                    .header("Content-Type", "application/json")
+                    .timeout(Duration.of(3, ChronoUnit.SECONDS))
+                    .POST(HttpRequest.BodyPublishers.ofString(data.toString()))
+                    .build();
+            HttpResponse<String> response;
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            result = "POST Request: Status code = " + response.statusCode();
+            String body = response.body();
+            JSONObject jsonIn = readJSON(body);
+            if (jsonIn == null) result += " (body is invalid JSON)";
+            result += ", body: " + body;
+        } catch (IOException e) {
+            result = "POST Request: IO Exception" + e;
+        } catch (InterruptedException e) {
+            result = "POST Request: Timeout" + e;
+        } catch (Exception e) {
+            result = "POST Request: Unexpected error!" + e;
+        }
+        System.out.println(result);
+    }
     // Send a GET request to /ping
     private static void sendGetRequest(URI uri, HttpClient client) {
         String result;
@@ -68,5 +91,24 @@ public class LoginService {
             // If anything goes wrong, return null
         }
         return jsonIn;
+    }
+
+    public void executeRegister(String hostAddress, String port, String username, String password) {
+        try {
+            // Read command-line parameters, if they exist
+
+            URI uri = new URI("http://" + hostAddress + ":" + port + "/user/register"); // If needed, change http to https
+            HttpClient client = HttpClient.newBuilder()
+                    // .sslContext(SSLContext.getDefault()) // Uncomment if you want to use https
+                    .build();
+
+            JSONObject jsonBody = new JSONObject()
+                    .put("username", username)
+                    .put("password", password);
+            sendPostRequest(uri, client, jsonBody);
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 }
