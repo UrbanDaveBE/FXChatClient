@@ -6,6 +6,8 @@ module local.dev.fxchatclient {
     requires com.dlsc.formsfx;
     requires org.kordamp.bootstrapfx.core;
     requires javafx.graphics;
+    requires java.net.http;
+    requires org.json;
 
     opens local.dev.fxchatclient to javafx.fxml;
     exports local.dev.fxchatclient;

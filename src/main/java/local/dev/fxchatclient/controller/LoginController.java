@@ -3,6 +3,7 @@ package local.dev.fxchatclient.controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.fxml.FXML;
+import local.dev.fxchatclient.service.LoginService;
 
 public class LoginController {
 
@@ -15,6 +16,8 @@ public class LoginController {
     private void handlePingAction() {
         // TODO
         System.out.println("Ping-Button geklickt.");
+        LoginService loginService = new LoginService();
+        loginService.executePing(addressField.getText(),portField.getText());
     }
 
     @FXML

@@ -13,7 +13,9 @@
 
 
     <VBox >
+        <Label text="Server-Adresse:" />
         <TextField fx:id="addressField" text="javaprojects.ch" />
+        <Label text="Port:" />
         <TextField fx:id="portField" text="50001" />
         <HBox>
             <Button fx:id="pingButton" text="Ping" onAction="#handlePingAction" />
