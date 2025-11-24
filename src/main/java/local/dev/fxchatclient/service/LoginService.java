@@ -114,7 +114,7 @@ public class LoginService {
         }
     }
 
-    public void executeLogin(String hostAddress, String port, String username, String password) {
+    public JSONObject executeLogin(String hostAddress, String port, String username, String password) {
         try {
             // Read command-line parameters, if they exist
 
@@ -126,6 +126,24 @@ public class LoginService {
             JSONObject jsonBody = new JSONObject()
                     .put("username", username)
                     .put("password", password);
+            return sendPostRequest(uri, client, jsonBody);
+
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public void executeLogout(String hostAddress, String port, String token) {
+        try {
+            // Read command-line parameters, if they exist
+
+            URI uri = new URI("http://" + hostAddress + ":" + port + "/user/logout"); // If needed, change http to https
+            HttpClient client = HttpClient.newBuilder()
+                    // .sslContext(SSLContext.getDefault()) // Uncomment if you want to use https
+                    .build();
+            JSONObject jsonBody = new JSONObject()
+                    .put("token", token);
             sendPostRequest(uri, client, jsonBody);
 
         } catch (Exception e) {
