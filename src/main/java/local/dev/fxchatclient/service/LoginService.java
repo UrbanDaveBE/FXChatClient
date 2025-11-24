@@ -1,5 +1,6 @@
 package local.dev.fxchatclient.service;
 
+import local.dev.fxchatclient.util.JsonUtil;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -14,16 +15,18 @@ import java.time.temporal.ChronoUnit;
 
 public class LoginService {
 
+    //singleton
+    private static final HttpClient client = HttpClient.newBuilder().build();
+    private static final String BASE_URL_PATTERN = "http://%s:%s";
 
     public void executePing(String hostAddress, String port) {
         try {
             // Read command-line parameters, if they exist
 
-            URI uri = new URI("http://" + hostAddress + ":" + port + "/ping"); // If needed, change http to https
-            HttpClient client = HttpClient.newBuilder()
-                    // .sslContext(SSLContext.getDefault()) // Uncomment if you want to use https
-                    .build();
-            sendGetRequest(uri, client);
+            //URI uri = new URI("http://" + hostAddress + ":" + port + "/ping"); // If needed, change http to https
+            URI uri = new URI(String.format(BASE_URL_PATTERN, hostAddress, port) + "/ping");
+
+            sendGetRequest(uri);
 
         } catch (Exception e) {
             System.out.println(e);
@@ -32,7 +35,7 @@ public class LoginService {
 
 
     // Send a POST request to /ping
-    private static JSONObject sendPostRequest(URI uri, HttpClient client, JSONObject data) {
+    private static JSONObject sendPostRequest(URI uri, JSONObject data) {
         String result;
         JSONObject jsonResponse = new JSONObject();
         try {
@@ -46,7 +49,7 @@ public class LoginService {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
             result = "POST Request: Status code = " + response.statusCode();
             String body = response.body();
-            jsonResponse = readJSON(body);
+            jsonResponse = JsonUtil.readJSON(body);
             if (jsonResponse == null) result += " (body is invalid JSON)";
             result += ", body: " + body;
         } catch (IOException e) {
@@ -60,7 +63,7 @@ public class LoginService {
         return jsonResponse;
     }
     // Send a GET request to /ping
-    private static JSONObject sendGetRequest(URI uri, HttpClient client) {
+    private static JSONObject sendGetRequest(URI uri) {
         String result;
         JSONObject jsonResponse = new JSONObject();
         try {
@@ -71,7 +74,7 @@ public class LoginService {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
             result = "GET Request: Status code = " + response.statusCode();
             String body = response.body();
-            jsonResponse = readJSON(body);
+            jsonResponse = JsonUtil.readJSON(body);
             if (jsonResponse == null) result += " (body is invalid JSON)";
             result += ", body: " + body;
         } catch (IOException e) {
@@ -85,29 +88,18 @@ public class LoginService {
         return jsonResponse;
     }
 
-    private static JSONObject readJSON(String in) {
-        JSONObject jsonIn = null;
-        try {
-            jsonIn = new JSONObject(in);
-        } catch (Exception e) {
-            // If anything goes wrong, return null
-        }
-        return jsonIn;
-    }
 
     public void executeRegister(String hostAddress, String port, String username, String password) {
         try {
             // Read command-line parameters, if they exist
 
-            URI uri = new URI("http://" + hostAddress + ":" + port + "/user/register"); // If needed, change http to https
-            HttpClient client = HttpClient.newBuilder()
-                    // .sslContext(SSLContext.getDefault()) // Uncomment if you want to use https
-                    .build();
+            //URI uri = new URI("http://" + hostAddress + ":" + port + "/user/register"); // If needed, change http to https
+            URI uri = new URI(String.format(BASE_URL_PATTERN, hostAddress, port) + "/user/register");
 
             JSONObject jsonBody = new JSONObject()
                     .put("username", username)
                     .put("password", password);
-            sendPostRequest(uri, client, jsonBody);
+            sendPostRequest(uri, jsonBody);
 
         } catch (Exception e) {
             System.out.println(e);
@@ -119,14 +111,12 @@ public class LoginService {
             // Read command-line parameters, if they exist
 
             URI uri = new URI("http://" + hostAddress + ":" + port + "/user/login"); // If needed, change http to https
-            HttpClient client = HttpClient.newBuilder()
-                    // .sslContext(SSLContext.getDefault()) // Uncomment if you want to use https
-                    .build();
+
 
             JSONObject jsonBody = new JSONObject()
                     .put("username", username)
                     .put("password", password);
-            return sendPostRequest(uri, client, jsonBody);
+            return sendPostRequest(uri, jsonBody);
 
         } catch (Exception e) {
             System.out.println(e);
@@ -138,13 +128,12 @@ public class LoginService {
         try {
             // Read command-line parameters, if they exist
 
-            URI uri = new URI("http://" + hostAddress + ":" + port + "/user/logout"); // If needed, change http to https
-            HttpClient client = HttpClient.newBuilder()
-                    // .sslContext(SSLContext.getDefault()) // Uncomment if you want to use https
-                    .build();
+            //URI uri = new URI("http://" + hostAddress + ":" + port + "/user/logout"); // If needed, change http to https
+            URI uri = new URI(String.format(BASE_URL_PATTERN, hostAddress, port) + "/user/logout");
+
             JSONObject jsonBody = new JSONObject()
                     .put("token", token);
-            sendPostRequest(uri, client, jsonBody);
+            sendPostRequest(uri, jsonBody);
 
         } catch (Exception e) {
             System.out.println(e);
