@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.stage.Stage;
 import local.dev.fxchatclient.ChatApplication;
 import local.dev.fxchatclient.service.LoginService;
+import local.dev.fxchatclient.util.DialogUtil;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -22,21 +23,41 @@ public class LoginController {
     @FXML private Button loginButton;
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
+    @FXML private Label pingStatusLabel;
+
 
     @FXML
     private void handlePingAction() {
-        // TODO
         System.out.println("Ping-Button geklickt.");
         LoginService loginService = new LoginService();
-        loginService.executePing(addressField.getText(),portField.getText());
+        JSONObject response = loginService.executePing(addressField.getText(),portField.getText());
+        if (response != null && response.has("ping")){
+            boolean pingSuccess = response.getBoolean("ping");
+
+            if (pingSuccess) {
+                pingStatusLabel.setText("Ping: OK");
+            } else {
+                pingStatusLabel.setText("Ping: Error (Ungültige Antwort)");
+            }
+        } else{
+            pingStatusLabel.setText("Ping: Error (Verbindungsfehler)");
+        }
     }
 
     @FXML
     private void handleRegisterAction() {
-        // TODO
         System.out.println("Register-Button geklickt.");
         LoginService loginService = new LoginService();
-        loginService.executeRegister(addressField.getText(),portField.getText(),usernameField.getText(),passwordField.getText());
+        JSONObject response = loginService.executeRegister(addressField.getText(),portField.getText(),usernameField.getText(),passwordField.getText());
+
+        if (response != null && response.has("username")){
+            DialogUtil.showAlert(Alert.AlertType.INFORMATION, "Registrierung erfolgreich", "Der Benutzer '" + response.getString("username") + "' wurde erfolgreich registriert!");
+        } else if (response != null && response.has("Error")){
+            DialogUtil.showAlert(Alert.AlertType.ERROR, "Registrierung fehlgeschlagen", response.getString("Error"));
+        } else{
+            DialogUtil.showAlert(Alert.AlertType.ERROR, "Fehler", "Registrierung fehlgeschlagen: Unerwartete Serverantwort oder Verbindungsfehler.");
+        }
+
     }
 
     public void handleLoginAction(ActionEvent actionEvent) {
@@ -46,7 +67,7 @@ public class LoginController {
 
         if (response != null && response.has("token")) {
             String token = response.getString("token");
-            System.out.println("Login erfolgreich für, token erhalten: " + token);
+            System.out.println("Login erfolgreich, token erhalten: " + token);
 
 
             FXMLLoader loader = new FXMLLoader(ChatApplication.class.getResource("chat-view.fxml"));
@@ -64,8 +85,12 @@ public class LoginController {
             stage.setScene(scene);
             stage.setTitle("FXChatClient - " + usernameField.getText());
 
-        } else {
-            System.out.println("Login fehlgeschlagen!");
+        } else if (response != null && response.has("Error")) {
+            DialogUtil.showAlert(Alert.AlertType.ERROR, "Login fehlgeschlagen", response.getString("Error"));
+
+        }
+        else {
+            DialogUtil.showAlert(Alert.AlertType.ERROR, "Fehler", "Login fehlgeschlagen: Unerwartete Serverantwort oder Verbindungsfehler.");
         }
     }
 }

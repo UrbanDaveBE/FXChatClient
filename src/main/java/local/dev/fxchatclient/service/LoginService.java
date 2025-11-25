@@ -11,21 +11,24 @@ public class LoginService extends HttpService{
     //private static final HttpClient client = HttpClient.newBuilder().build();
     //private static final String BASE_URL_PATTERN = "http://%s:%s";
 
-    public void executePing(String hostAddress, String port) {
+    public JSONObject executePing(String hostAddress, String port) {
         try {
             // Read command-line parameters, if they exist
 
             //URI uri = new URI("http://" + hostAddress + ":" + port + "/ping"); // If needed, change http to https
             URI uri = new URI(String.format(BASE_URL_PATTERN, hostAddress, port) + "/ping");
-            sendGetRequest(uri);
+            System.out.println("Ping-Button geklickt.");
+
+            return sendGetRequest(uri);
 
         } catch (Exception e) {
             System.out.println(e);
         }
+        return null;
     }
 
 
-    public void executeRegister(String hostAddress, String port, String username, String password) {
+    public JSONObject executeRegister(String hostAddress, String port, String username, String password) {
         try {
             // Read command-line parameters, if they exist
 
@@ -35,11 +38,12 @@ public class LoginService extends HttpService{
             JSONObject jsonBody = new JSONObject()
                     .put("username", username)
                     .put("password", password);
-            sendPostRequest(uri, jsonBody);
+            return sendPostRequest(uri, jsonBody);
 
         } catch (Exception e) {
             System.out.println(e);
         }
+        return null;
     }
 
     public JSONObject executeLogin(String hostAddress, String port, String username, String password) {
@@ -56,8 +60,8 @@ public class LoginService extends HttpService{
 
         } catch (Exception e) {
             System.out.println(e);
-            return null;
         }
+        return null;
     }
 
     public void executeLogout(String hostAddress, String port, String token) {
