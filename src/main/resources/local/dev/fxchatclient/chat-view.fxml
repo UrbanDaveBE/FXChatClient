@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -11,5 +8,27 @@
             fx:controller="local.dev.fxchatclient.controller.ChatController"
             fx:id="rootPane"
             prefHeight="400.0" prefWidth="600.0">
+
+    <SplitPane>
+
+        <AnchorPane>
+            <VBox>
+                <Label text="Benutzerliste:"/>
+                <ListView fx:id="userListView"/>
+            </VBox>
+        </AnchorPane>
+
+        <AnchorPane>
+            <VBox>
+                <TextArea fx:id="chatArea" editable="false"/>
+
+                <HBox>
+                    <TextField fx:id="messageInput" promptText="Nachricht eingeben..."/>
+                    <Button fx:id="sendButton" text="Senden" onAction="#handleSendMessage" disable="true"/>
+                </HBox>
+            </VBox>
+        </AnchorPane>
+
+    </SplitPane>
 
 </AnchorPane>
