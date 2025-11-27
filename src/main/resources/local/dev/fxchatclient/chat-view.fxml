@@ -24,7 +24,7 @@
 
                 <HBox>
                     <TextField fx:id="messageInput" promptText="Nachricht eingeben..."/>
-                    <Button fx:id="sendButton" text="Senden" onAction="#handleSendMessage" disable="true"/>
+                    <Button fx:id="sendButton" text="Senden" onAction="#handleSendMessage" disable="false"/>
                 </HBox>
             </VBox>
         </AnchorPane>

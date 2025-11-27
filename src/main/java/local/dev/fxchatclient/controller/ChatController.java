@@ -101,15 +101,12 @@ public class ChatController {
 
     private void updateUserListExecutor() {
         executorService = Executors.newScheduledThreadPool(2);
-
         Runnable userListTask = new UserListTask(this.chatService, this.userListObservable, this.chatArea);
-
-
         // https://www.geeksforgeeks.org/java/scheduledexecutorservice-interface-in-java/
         userListPollingFuture = executorService.scheduleAtFixedRate(
                 userListTask,
                 0,
-                10,
+                120,
                 TimeUnit.SECONDS
         );
         System.out.println("Scheduled Polling für UserList gestartet.");
@@ -171,6 +168,11 @@ public class ChatController {
     @FXML
     private void handleSendMessage() {
         // TODO
+        User targetUser = userListView.getSelectionModel().getSelectedItem();
+        if (targetUser != null) {
+            chatService.sendMessage(targetUser,messageInput.getText());
+        }
+
     }
 
     @FXML
