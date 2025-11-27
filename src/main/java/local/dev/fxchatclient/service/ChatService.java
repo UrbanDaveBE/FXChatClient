@@ -1,6 +1,7 @@
 package local.dev.fxchatclient.service;
 
 
+import local.dev.fxchatclient.model.ChatMessage;
 import local.dev.fxchatclient.model.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,13 +26,41 @@ public class ChatService extends HttpService {
         this.username = username;
     }
 
+    public List<ChatMessage> readMessages(){
+        List<ChatMessage> messages = new ArrayList<>();
+        try {
+            // Read command-line parameters, if they exist
+
+            URI uri = new URI(String.format(BASE_URL_PATTERN, hostAddress, port) + "/chat/poll");
+            JSONObject jsonBody = new JSONObject()
+                    .put("token", token);
+
+            // TODO: prüfen ob noch online!
+            JSONObject response = sendPostRequest(uri, jsonBody);
+            if (response != null && response.has("messages")) {
+                JSONArray messageArray = response.getJSONArray("messages");
+                for (int i = 0; i < messageArray.length(); i++) {
+                    JSONObject messageJson = messageArray.getJSONObject(i);
+                    messages.add(new ChatMessage(messageJson));
+                }
+            } else  {
+                System.err.println("Error beim Polling der Nachrichten");
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return messages;
+
+    }
     public boolean sendMessage(User targetUser, String message) {
         List<User> users = new ArrayList<>();
+        boolean responsev = true;
+
         try {
             // Read command-line parameters, if they exist
 
             URI uri = new URI(String.format(BASE_URL_PATTERN, hostAddress, port) + "/chat/send");
-
             JSONObject jsonBody = new JSONObject()
                     .put("token", token)
                     .put("username", targetUser.getUsername())
@@ -42,14 +71,16 @@ public class ChatService extends HttpService {
 
             if (response != null && response.has("send")) { // {"send":true}
                 System.out.println("Nachricht erfolgreich versendet!");
+                responsev = response.getBoolean("send");
             } else { // {"send":false}
                 System.out.println("Error");
+                responsev = response.getBoolean("send");
             }
 
         } catch (Exception e) {
             System.out.println(e);
         }
-        return true;
+        return responsev;
     }
 
     private List<User> getAllUsers(){
@@ -58,6 +89,7 @@ public class ChatService extends HttpService {
             // Read command-line parameters, if they exist
             URI uri = new URI(String.format(BASE_URL_PATTERN, hostAddress, port) + "/users");
             JSONObject response = sendGetRequest(uri);
+
             if (response != null && response.has("users")) {
                 JSONArray userArray = response.getJSONArray("users");
                 for (int i = 0; i < userArray.length(); i++) {
