@@ -20,9 +20,10 @@
         <HBox>
             <Button fx:id="pingButton" text="Ping" onAction="#handlePingAction" />
         </HBox>
+        <Label fx:id="pingStatusLabel" text="Ping: Unknown" />
         <Separator />
         <Label text="Benutzername:" />
-        <TextField fx:id="usernameField" text="Bernese" />
+        <TextField fx:id="usernameField" text="Bernese2" />
         <Label text="Passwort:" />
         <PasswordField fx:id="passwordField" text="abc123" />
         <HBox>

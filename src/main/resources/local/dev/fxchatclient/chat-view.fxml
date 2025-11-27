@@ -11,20 +11,20 @@
 
     <SplitPane>
 
-        <AnchorPane>
-            <VBox>
+        <AnchorPane  maxWidth="-Infinity" minWidth="-Infinity" prefWidth="150.0">
+            <VBox spacing="5.0" style="-fx-padding: 10;">
                 <Label text="Benutzerliste:"/>
-                <ListView fx:id="userListView"/>
+                <ListView fx:id="userListView" VBox.vgrow="ALWAYS"/>
             </VBox>
         </AnchorPane>
 
         <AnchorPane>
             <VBox>
-                <TextArea fx:id="chatArea" editable="false"/>
+                <ListView fx:id="chatListView" VBox.vgrow="ALWAYS" editable="false"/>
 
-                <HBox>
-                    <TextField fx:id="messageInput" promptText="Nachricht eingeben..."/>
-                    <Button fx:id="sendButton" text="Senden" onAction="#handleSendMessage" disable="false"/>
+                <HBox spacing="5.0" style="-fx-padding: 10;">
+                    <TextField fx:id="messageInput" promptText="Nachricht eingeben..." HBox.hgrow="ALWAYS" />
+                    <Button fx:id="sendButton" text="Senden" onAction="#handleSendMessage"/>
                 </HBox>
             </VBox>
         </AnchorPane>
