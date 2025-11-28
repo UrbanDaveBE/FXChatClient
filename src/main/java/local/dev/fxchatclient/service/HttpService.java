@@ -10,6 +10,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class HttpService {
     //singleton
@@ -17,55 +19,62 @@ public abstract class HttpService {
     protected static final String BASE_URL_PATTERN = "http://%s:%s";
 
     protected static JSONObject sendPostRequest(URI uri, JSONObject payload){
-        String result;
         JSONObject jsonResponse = new JSONObject();
         try {
-
             HttpRequest request = HttpRequest.newBuilder().uri(uri)
                     .header("Content-Type", "application/json")
                     .timeout(Duration.of(3, ChronoUnit.SECONDS))
                     .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
                     .build();
-            HttpResponse<String> response;
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            result = "POST Request: Status code = " + response.statusCode();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             String body = response.body();
+
+            System.out.println("HttpService: POST " + uri.getPath() + " -> Status: " + response.statusCode());
+            //TODO DEBUG ONLY
+            //System.out.println("HttpService: POST Response Body: " + body);
             jsonResponse = JsonUtil.readJSON(body);
-            if (jsonResponse == null) result += " (body is invalid JSON)";
-            result += ", body: " + body;
+            if (jsonResponse == null) {
+                System.out.println("HttpService: POST Body is invalid JSON: " + body);
+            }
+
         } catch (IOException e) {
-            result = "POST Request: IO Exception" + e;
+            System.out.println("HttpService: POST Request IO Exception:" + e.getMessage());
         } catch (InterruptedException e) {
-            result = "POST Request: Timeout" + e;
+            System.out.println("HttpService: POST Request Timeout: " + e.getMessage());
         } catch (Exception e) {
-            result = "POST Request: Unexpected error!" + e;
+            System.out.println("HttpService: POST Request Unexpected error: " + e.getMessage());
         }
-        System.out.println(result);
         return jsonResponse;
     }
 
     protected static JSONObject sendGetRequest(URI uri) {
-        String result;
         JSONObject jsonResponse = new JSONObject();
         try {
             HttpRequest request = HttpRequest.newBuilder().uri(uri)
                     .timeout(Duration.of(3, ChronoUnit.SECONDS))
                     .GET().build();
-            HttpResponse<String> response;
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            result = "GET Request: Status code = " + response.statusCode();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             String body = response.body();
+
+            System.out.println("HttpService: GET " + uri.getPath() + " -> Status: " + response.statusCode());
+            //TODO DEBUG ONLY
+            //System.out.println("HttpService: GET Response Body: " + body);
+
+
             jsonResponse = JsonUtil.readJSON(body);
-            if (jsonResponse == null) result += " (body is invalid JSON)";
-            result += ", body: " + body;
+            if (jsonResponse == null) {
+                System.out.println("HttpService: GET Body is invalid JSON: " + body);
+            }
+
         } catch (IOException e) {
-            result = "GET Request: IO Exception: " + e;
+            System.out.println("HttpService: GET Request IO Exception: " + e.getMessage());
         } catch (InterruptedException e) {
-            result = "GET Request: Timeout";
+            System.out.println("HttpService: GET Request Timeout: " + e.getMessage());
         } catch (Exception e) {
-            result = "GET Request: Unexpected error!";
+            System.out.println("HttpService: GET Request Unexpected error: " + e.getMessage());
         }
-        System.out.println(result);
         return jsonResponse;
     }
 }

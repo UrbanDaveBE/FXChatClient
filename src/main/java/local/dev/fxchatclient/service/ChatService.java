@@ -14,16 +14,14 @@ import java.util.Map;
 
 public class ChatService extends HttpService {
 
-    private String token;
-    private String hostAddress;
-    private String port;
-    private String username;
+    private final String token;
+    private final String hostAddress;
+    private final String port;
 
-    public ChatService(String token, String hostAddress, String port, String username) {
+    public ChatService(String token, String hostAddress, String port) {
         this.token = token;
         this.hostAddress = hostAddress;
         this.port = port;
-        this.username = username;
     }
 
     public List<ChatMessage> readMessages(){
@@ -44,7 +42,7 @@ public class ChatService extends HttpService {
                     messages.add(new ChatMessage(messageJson));
                 }
             } else  {
-                System.err.println("Error beim Polling der Nachrichten");
+                System.err.println("[Error]-[readMessages]: beim Polling der Nachrichten");
             }
 
         } catch (Exception e) {
@@ -70,10 +68,8 @@ public class ChatService extends HttpService {
             JSONObject response = sendPostRequest(uri, jsonBody);
 
             if (response != null && response.has("send")) { // {"send":true}
-                System.out.println("Nachricht erfolgreich versendet!");
                 responsev = response.getBoolean("send");
             } else { // {"send":false}
-                System.out.println("Error");
                 responsev = response.getBoolean("send");
             }
 

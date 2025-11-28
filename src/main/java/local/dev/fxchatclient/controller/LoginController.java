@@ -13,6 +13,7 @@ import local.dev.fxchatclient.util.DialogUtil;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class LoginController {
 
@@ -28,7 +29,7 @@ public class LoginController {
 
     @FXML
     private void handlePingAction() {
-        System.out.println("Ping-Button geklickt.");
+        System.out.println("[handlePingAction]: Ping-Button geklickt.");
         LoginService loginService = new LoginService();
         JSONObject response = loginService.executePing(addressField.getText(),portField.getText());
         if (response != null && response.has("ping")){
@@ -46,7 +47,7 @@ public class LoginController {
 
     @FXML
     private void handleRegisterAction() {
-        System.out.println("Register-Button geklickt.");
+        System.out.println("[handleRegisterAction]: Register-Button geklickt.");
         LoginService loginService = new LoginService();
         JSONObject response = loginService.executeRegister(addressField.getText(),portField.getText(),usernameField.getText(),passwordField.getText());
 
@@ -61,19 +62,21 @@ public class LoginController {
     }
 
     public void handleLoginAction(ActionEvent actionEvent) {
-        System.out.println("Login-Button geklickt.");
+        System.out.println("[handleLoginAction]: Login-Button geklickt.");
         LoginService loginService = new LoginService();
         JSONObject response = loginService.executeLogin(addressField.getText(), portField.getText(), usernameField.getText(), passwordField.getText());
 
         if (response != null && response.has("token")) {
             String token = response.getString("token");
-            System.out.println("Login erfolgreich, token erhalten: " + token);
+            System.out.println("[handleLoginAction]: TOKEN: " + token);
 
 
             FXMLLoader loader = new FXMLLoader(ChatApplication.class.getResource("chat-view.fxml"));
             Scene scene = null;
             try {
                 scene = new Scene(loader.load(), 800, 600);
+                String cssPath = Objects.requireNonNull(ChatApplication.class.getResource("chat-styles.css")).toExternalForm();
+                scene.getStylesheets().add(cssPath);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
