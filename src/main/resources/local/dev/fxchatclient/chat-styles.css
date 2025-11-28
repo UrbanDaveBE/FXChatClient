@@ -1,0 +1,62 @@
+/* * Minimales CSS (unter 20 Zeilen) */
+
+/* Globale Farben und Typografie */
+.root {
+    -fx-base: #F5F5F5;      /* Sehr helles Grau */
+    -fx-background: #FFFFFF; /* Hintergrund */
+    -fx-accent: #00897B;    /* Türkis Akzent */
+    -fx-text-fill: #333333; /* Dunkler Text */
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Hintergrund der Anwendung */
+.background {
+    -fx-background-color: -fx-background;
+}
+
+/* Buttons und Textfelder (Akzentuierung) */
+.text-field, .password-field {
+    -fx-background-color: #EEEEEE;
+    -fx-border-color: -fx-accent;
+    -fx-border-width: 0.5px;
+    -fx-padding: 5px 10px;
+}
+.button {
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+.button:hover {
+    -fx-background-color: derive(-fx-accent, -10%);
+}
+
+/* Listen */
+.list-view {
+    -fx-background-color: -fx-base;
+    -fx-border-color: #BDBDBD;
+    -fx-border-width: 0.5px;
+}
+/* ########################################## */
+/* CHAT BUBBLE STYLING */
+/* ########################################## */
+.chat-bubble {
+    /* Allgemeine Form */
+    -fx-padding: 8px 12px;
+    -fx-background-radius: 12px;
+    -fx-text-fill: -fx-text-fill; /* Erbt dunkle Farbe */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0.0, 0, 1); /* Leichter Schatten */
+}
+
+/* Eigene Nachrichten (Rechts) */
+.chat-bubble.self {
+    -fx-background-color: -fx-accent; /* Akzentfarbe */
+    -fx-text-fill: white; /* Weißer Text auf dunklem Akzent */
+}
+
+/* Fremde Nachrichten (Links) */
+.chat-bubble.partner {
+    -fx-background-color: #E0E0E0; /* Helles Grau */
+    -fx-text-fill: #333333; /* Dunkler Text */
+}

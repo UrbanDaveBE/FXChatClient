@@ -4,8 +4,10 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import local.dev.fxchatclient.model.ChatMessage;
 import local.dev.fxchatclient.service.LoginService;
@@ -15,7 +17,6 @@ import local.dev.fxchatclient.task.MessagePollingTask;
 import local.dev.fxchatclient.task.UserListTask;
 import local.dev.fxchatclient.util.DialogUtil;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ import java.util.concurrent.*;
 public class ChatController {
 
 
-    @FXML private AnchorPane rootPane;
+    @FXML private VBox rootPane;
     @FXML private ListView<User> userListView;
     @FXML private ListView<ChatMessage> chatListView; // Switch von TextArea
     @FXML private TextField messageInput;
@@ -56,8 +57,6 @@ public class ChatController {
         userListObservable = FXCollections.observableArrayList();
         userListView.setItems(userListObservable);
 
-
-
         userListView.setCellFactory(lv -> new ListCell<User>() {
             @Override
             protected void updateItem(User user, boolean empty) {
@@ -81,16 +80,29 @@ public class ChatController {
             protected void updateItem(ChatMessage message, boolean empty) {
                 super.updateItem(message, empty);
                 if (empty || message == null) {
+                    setGraphic(null);
                     setText(null);
-                    setStyle(null);
-                } else {
-                    setText(message.toString());
-                    if (message.isOwnMessage(username)) {
-                        setStyle("-fx-alignment: center-right; -fx-text-fill: blue;");
-                    } else {
-                        setStyle("-fx-alignment: center-left; -fx-text-fill: black;");
-                    }
+                    setStyle("-fx-padding: 0;");
+                    return;
                 }
+
+                Label messageLabel = new  Label(message.getMessage());
+                messageLabel.setWrapText(true);
+                VBox bubble = new VBox(messageLabel);
+                bubble.getStyleClass().add("chat-bubble");
+
+                HBox messageContainer = new HBox(bubble);
+                messageContainer.setMaxWidth(chatListView.getWidth()-20);
+
+                if(message.isOwnMessage(username)){
+                    messageContainer.setAlignment(Pos.CENTER_RIGHT);
+                    bubble.getStyleClass().add("self");
+                }else{
+                    messageContainer.setAlignment(Pos.CENTER_LEFT);
+                    bubble.getStyleClass().add("partner");
+                }
+                setGraphic(messageContainer);
+                setStyle("-fx-padding: 5px 10px;");
             }
         });
 
@@ -104,12 +116,7 @@ public class ChatController {
         javafx.application.Platform.runLater(() -> {
             Stage stage = (Stage) rootPane.getScene().getWindow();
             stage.setOnCloseRequest(event -> {
-                //isPolling = false;
-                //if(userListThread != null) {
-                //   userListThread.interrupt();
-                //}
                 stopPolling();
-                System.out.println("Fenster wird geschlossen");
                 loginService.executeLogout(hostAddress, port, token);
             });
         });
@@ -117,7 +124,7 @@ public class ChatController {
 
     private void stopPolling() {
         if (executorService != null) {
-            System.out.println("Scheduled Executor wird heruntergefahren.");
+            System.out.println("[executorService]: Scheduled Executor wird heruntergefahren.");
 
             if (userListPollingFuture != null) {
                 userListPollingFuture.cancel(true);
@@ -127,7 +134,7 @@ public class ChatController {
                 messagePollingFuture.cancel(true);
             }
             executorService.shutdownNow();
-            System.out.println("Scheduled Polling gestoppt.");
+            System.out.println("[executorService]: Scheduled Executor gestoppt.");
         }
     }
 
@@ -137,20 +144,16 @@ public class ChatController {
         this.port = port;
         this.username = username;
 
-        this.chatService = new ChatService(token, hostAddress, port, username);
-
-        System.out.println("ChatController: Session gestartet.");
-        //updateUserListGUI();
-        //updateUserListGUIAsync();
-        //updateUserListExecutor();
+        this.chatService = new ChatService(token, hostAddress, port);
         startPolling();
     }
 
     private void startPolling() {
         executorService = Executors.newScheduledThreadPool(2);
-        final int POLLING_RATE_SECONDS = 30;
-        updateUserListExecutor(POLLING_RATE_SECONDS);
-        updateChatMessages(POLLING_RATE_SECONDS);
+        final int POLLING_RATE_SECONDS_MSG = 3;
+        final int POLLING_RATE_SECONDS_UL = 60;
+        updateUserListExecutor(POLLING_RATE_SECONDS_UL);
+        updateChatMessages(POLLING_RATE_SECONDS_MSG);
 
     }
 
@@ -163,7 +166,7 @@ public class ChatController {
                 rate,
                 TimeUnit.SECONDS
         );
-        System.out.println("Scheduled Polling für Messages gestartet.");
+        System.out.println("[executorService]: Scheduled Polling für Messages gestartet.");
 
     }
 
@@ -176,14 +179,13 @@ public class ChatController {
                 rate,
                 TimeUnit.SECONDS
         );
-        System.out.println("Scheduled Polling für UserList gestartet.");
+        System.out.println("[executorService]: Scheduled Polling für UserList gestartet.");
 
     }
-
+    // für dokumentationszwecke da, BLOCKIERENDE Methode -> zu Thread bzw. Executor
     private void updateUserListGUI() {
         List<User> users = chatService.getUserStatusList();
         if (users.isEmpty()) {
-//            chatArea.setText("FEHLER: Konnte keine Benutzerliste vom Server laden.");
             System.out.println("Keine Benutzer gefunden oder Fehler bei der Anfrage.");
         } else {
             userListObservable.clear();
@@ -193,7 +195,7 @@ public class ChatController {
             );
         }
     }
-
+    // für dokumentationszwecke da, wie man mittels while-Schlaufe
     private void updateUserListGUIAsync(){
         Runnable userListTask = new Runnable() {
             @Override
@@ -233,9 +235,8 @@ public class ChatController {
 
     @FXML
     private void handleSendMessage() {
-        // TODO
         final String message = messageInput.getText().trim();
-        User targetUser = userListView.getSelectionModel().getSelectedItem();
+        User targetUser = this.selectedTargetUser;
         if(message.isEmpty()){return;}
         if (targetUser == null) {return;}
         executorService.execute(() -> {
@@ -245,6 +246,7 @@ public class ChatController {
                 if(success){
                     ChatMessage sentMsg = new ChatMessage(message,username);
                     processSentMessage(sentMsg, targetUser);
+                    System.out.println("[handleSendMessage]: Nachricht an ["+targetUser.getUsername()+"] gesendet: " + message);
                     messageInput.clear();
                 } else{
                     DialogUtil.showAlert(Alert.AlertType.ERROR, "Fehler", "Nachricht konnte nicht gesendet werden.");
@@ -281,8 +283,6 @@ public class ChatController {
             return;
         }
 
-        System.out.println(">>> " + newMessages.size() + " NEUE NACHRICHT(EN) empfangen.");
-
         for (ChatMessage msg : newMessages) {
 
             User senderUser = userListObservable.stream()
@@ -304,4 +304,6 @@ public class ChatController {
             }
         }
     }
+
+
 }
