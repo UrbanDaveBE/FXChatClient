@@ -30,6 +30,7 @@ public class ChatController {
     @FXML private ListView<ChatMessage> chatListView; // Switch von TextArea
     @FXML private TextField messageInput;
     @FXML private Button sendButton;
+    @FXML private Label chatHeaderLabel; // Header Label
 
 
     private String token;
@@ -64,12 +65,16 @@ public class ChatController {
                 if (empty || user == null) {
                     setText(null);
                     setStyle(null);
-                } else {
-                    setText(user.getUsername() + " (" + user.isOnline() + ")");
-                    if(user.getHasUnreadMessages()){
-                        setStyle("-fx-font-weight: bold");
-                    } else{
-                        setStyle(null);
+                }  else {
+                    String statusSymbol = user.isOnline() ? "🟢" : "⚪";
+                    setText(statusSymbol + " " + user.getUsername());
+
+                    if (user.getHasUnreadMessages()) {
+                        setStyle("-fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+                    } else if (!user.isOnline()) {
+                        setStyle("-fx-text-fill: #95a5a6;"); // Ausgegraut wenn offline
+                    } else {
+                        setStyle("-fx-text-fill: black;");
                     }
                 }
             }
@@ -108,7 +113,10 @@ public class ChatController {
 
         userListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
+                chatHeaderLabel.setText("Chat mit " + newSelection.getUsername() + (newSelection.isOnline() ? " (Online)" : " (Offline)"));
                 handleUserSelection(newSelection);
+            } else {
+                chatHeaderLabel.setText("Kein Chat ausgewählt");
             }
         });
 
@@ -171,7 +179,7 @@ public class ChatController {
     }
 
     private void updateUserListExecutor(int rate) {
-        Runnable userListTask = new UserListTask(this.chatService, this.userListObservable);
+        Runnable userListTask = new UserListTask(this.chatService, this);
         // https://www.geeksforgeeks.org/java/scheduledexecutorservice-interface-in-java/
         userListPollingFuture = executorService.scheduleAtFixedRate(
                 userListTask,
@@ -248,6 +256,7 @@ public class ChatController {
                     processSentMessage(sentMsg, targetUser);
                     System.out.println("[handleSendMessage]: Nachricht an ["+targetUser.getUsername()+"] gesendet: " + message);
                     messageInput.clear();
+                    messageInput.requestFocus();
                 } else{
                     DialogUtil.showAlert(Alert.AlertType.ERROR, "Fehler", "Nachricht konnte nicht gesendet werden.");
                 }
@@ -268,6 +277,7 @@ public class ChatController {
         chatListView.setItems(history);
 
         selectedUser.setHasUnreadMessages((false));
+        userListView.refresh();
 
         Platform.runLater(() -> {
             chatListView.scrollTo(history.size() - 1);
@@ -301,9 +311,22 @@ public class ChatController {
                 chatListView.scrollTo(userHistory.size() - 1);
             } else{
                 senderUser.setHasUnreadMessages((true));
+                userListView.refresh();
+
             }
         }
     }
 
+    public ObservableList<User> getUserListObservable() {
+        return userListObservable;
+    }
+
+    public ListView<User> getUserListView() {
+        return userListView;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
 
 }

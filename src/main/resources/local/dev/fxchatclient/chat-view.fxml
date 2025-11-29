@@ -3,11 +3,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.text.Font?>
 <VBox xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="local.dev.fxchatclient.controller.ChatController"
-            fx:id="rootPane"
-            prefHeight="400.0" prefWidth="400.0">
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="local.dev.fxchatclient.controller.ChatController"
+      fx:id="rootPane"
+      prefHeight="400.0" prefWidth="400.0">
 
     <SplitPane VBox.vgrow="ALWAYS" dividerPositions="0.25">
 
@@ -17,6 +18,13 @@
         </VBox>
 
         <VBox>
+            <Label fx:id="chatHeaderLabel" text="Kein Chat ausgewählt"
+                   style="-fx-background-color: #f0f0f0; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;"
+                   maxWidth="Infinity">
+                <font>
+                    <Font name="System Bold" size="14.0"/>
+                </font>
+            </Label>
                 <ListView fx:id="chatListView" VBox.vgrow="ALWAYS"/>
 
                 <HBox spacing="5.0" style="-fx-padding: 10;">

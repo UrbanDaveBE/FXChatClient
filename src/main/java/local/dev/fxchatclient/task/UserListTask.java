@@ -1,77 +1,80 @@
 package local.dev.fxchatclient.task;
 
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
-
+import local.dev.fxchatclient.controller.ChatController;
 import local.dev.fxchatclient.model.User;
 import local.dev.fxchatclient.service.ChatService;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class UserListTask implements Runnable {
 
-
     private final ChatService chatService;
-    private final ObservableList<User> userListObservable;
+    private final ChatController chatController;
 
-
-    public UserListTask(ChatService chatService, ObservableList<User> userListObservable) {
+    public UserListTask(ChatService chatService, ChatController chatController) {
         this.chatService = chatService;
-        this.userListObservable = userListObservable;
+        this.chatController = chatController;
     }
 
     @Override
     public void run() {
-        System.out.println("[UserListTask]: run gestartet.");
-
         List<User> users = chatService.getUserStatusList();
 
         Platform.runLater(() -> {
             if (users.isEmpty()) {
                 System.out.println("[WARNING]-[UserListTask]: No users found");
-            } else {
+                return;
+            }
 
-                User selectedUserBeforeUpdate = userListObservable.stream()
-                        .filter(u -> !u.getHasUnreadMessages())
-                        .findFirst()
-                        .orElse(null);
+            users.sort((u1, u2) -> {
 
-                String selectedUsername = null;
-                User currentSelection = userListObservable.stream()
-                        .filter(u -> !u.getHasUnreadMessages())
-                        .findFirst()
-                        .orElse(null);
-                if (currentSelection != null) {
-                    selectedUsername = currentSelection.getUsername();
+                int onlineCompare = Boolean.compare(u2.isOnline(), u1.isOnline());
+                if (onlineCompare != 0) {
+                    return onlineCompare;
+                }
+                return u1.getUsername().compareToIgnoreCase(u2.getUsername());
+            });
+
+            User currentlySelected = chatController.getUserListView().getSelectionModel().getSelectedItem();
+            String selectedUsername = (currentlySelected != null) ? currentlySelected.getUsername() : null;
+
+
+            Map<String, User> existingMap = new HashMap<>();
+            for (User u : chatController.getUserListObservable()) {
+                existingMap.put(u.getUsername(), u);
+            }
+
+            String currentSelfUser = chatController.getUsername();
+
+            chatController.getUserListObservable().clear();
+
+            for (User newUser : users) {
+                if (currentSelfUser != null && newUser.getUsername().equals(currentSelfUser)) {
+                    continue;
                 }
 
-                Map<String, User> existingUserMap = new HashMap<>();
-                userListObservable.forEach(user -> existingUserMap.put(user.getUsername(), user));
+                User existing = existingMap.get(newUser.getUsername());
+                if (existing != null) {
+                    existing.setOnline(newUser.isOnline());
 
-                userListObservable.clear();
+                    chatController.getUserListObservable().add(existing);
+                } else {
+                    chatController.getUserListObservable().add(newUser);
+                }
+            }
 
-                //TODO: DEBUG ONLY
-                //System.out.println("Verarbeite " + users.size() + " User vom Server.");
-
-                users.forEach(user -> {
-
-                    //TODO: DEBUG ONLY
-                    //System.out.println("User: " + user.getUsername() + " ; Status: " + user.isOnline());
-
-                    User existing = existingUserMap.get(user.getUsername());
-                    if(existing != null) {
-                        existing.setOnline(user.isOnline());
-                        userListObservable.add(existing);
-                    } else{
-                        userListObservable.add(user);
+            if (selectedUsername != null) {
+                for (User u : chatController.getUserListObservable()) {
+                    if (u.getUsername().equals(selectedUsername)) {
+                        chatController.getUserListView().getSelectionModel().select(u);
+                        break;
                     }
-                });
-                System.out.println("[UserListTask]: run beendet. User-Liste aktualisiert. Anzahl: " + users.size());
+                }
             }
         });
     }
-
 }
