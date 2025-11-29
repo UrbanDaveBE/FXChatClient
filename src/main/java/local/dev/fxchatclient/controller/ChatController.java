@@ -151,7 +151,7 @@ public class ChatController {
     private void startPolling() {
         executorService = Executors.newScheduledThreadPool(2);
         final int POLLING_RATE_SECONDS_MSG = 3;
-        final int POLLING_RATE_SECONDS_UL = 60;
+        final int POLLING_RATE_SECONDS_UL = 10;
         updateUserListExecutor(POLLING_RATE_SECONDS_UL);
         updateChatMessages(POLLING_RATE_SECONDS_MSG);
 
