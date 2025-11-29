@@ -10,8 +10,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 public abstract class HttpService {
     //singleton

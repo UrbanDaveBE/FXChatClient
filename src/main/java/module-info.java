@@ -8,6 +8,7 @@ module local.dev.fxchatclient {
     requires javafx.graphics;
     requires java.net.http;
     requires org.json;
+    requires javafx.base;
 
     opens local.dev.fxchatclient to javafx.fxml;
     exports local.dev.fxchatclient;

@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.fxml.FXML;
 import javafx.stage.Stage;
 import local.dev.fxchatclient.ChatApplication;
 import local.dev.fxchatclient.service.LoginService;
@@ -19,8 +18,6 @@ public class LoginController {
 
     @FXML private TextField addressField;
     @FXML private TextField portField;
-    @FXML private Button pingButton;
-    @FXML private Button registerButton;
     @FXML private Button loginButton;
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
@@ -72,7 +69,7 @@ public class LoginController {
 
 
             FXMLLoader loader = new FXMLLoader(ChatApplication.class.getResource("chat-view.fxml"));
-            Scene scene = null;
+            Scene scene;
             try {
                 scene = new Scene(loader.load(), 800, 600);
                 String cssPath = Objects.requireNonNull(ChatApplication.class.getResource("chat-styles.css")).toExternalForm();
